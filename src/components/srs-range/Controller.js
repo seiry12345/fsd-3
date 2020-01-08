@@ -52,7 +52,8 @@ class Controller {
 				if (xCoords === 0) {
 					tooltip1.textContent = 0;
 				} else {
-					tooltip1.textContent = Math.floor();
+					const percentPart = Math.floor(this.max * (xCoords / 100));
+					tooltip1.textContent = percentPart;
 				}
 				tooltip1.style.left = xCoords + "%";
 			};
