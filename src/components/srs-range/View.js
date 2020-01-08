@@ -33,11 +33,11 @@ class View {
 
 		box.textContent = value;
 		box.classList.add("srs__box", selector);
-		parent.append(box);
 		box.style.left = position + "%";
+		parent.append(box);
 	}
 
-	createControlBtn(parent, selector, value, position) {
+	createControllBtn(parent, selector, value, position) {
 		let btn = document.createElement("btn");
 
 		btn.setAttribute("data-xCoords", value);

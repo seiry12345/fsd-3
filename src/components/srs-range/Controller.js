@@ -17,11 +17,12 @@ class Controller {
 			const shiftX = event.clientX - target.getBoundingClientRect().left;
 			let line;
 			let lineWidth;
-			let tooltip1;
-			let tooltip2;
+			let tooltipFrom;
+			let tooltipTo;
 
+			// iterate parent container
 			srsWrapList.forEach((srsWrapItem) => {
-				// asign line
+				// assign line
 				if (srsWrapItem.classList.contains("srs__line")) {
 					line = srsWrapItem;
 					lineWidth = line.offsetWidth;
@@ -29,17 +30,16 @@ class Controller {
 
 				// asign tooltips
 				if (srsWrapItem.classList.contains("srs__box-values")) {
-					let boxValues = srsWrapItem.children;
-
-					boxValues = Array.from(boxValues);
+					let boxValues = Array.from(srsWrapItem.children);
 
 					boxValues.forEach((boxValueItem) => {
-						if (boxValueItem.classList.contains("srs__box-btn-1")) {
-							tooltip1 = boxValueItem;
+
+						if (boxValueItem.classList.contains("srs__box-btn-from")) {
+							tooltipFrom = boxValueItem;
 						}
 
-						if (boxValueItem.classList.contains("srs__box-btn-2")) {
-							tooltip2 = boxValueItem;
+						if (boxValueItem.classList.contains("srs__box-btn-to")) {
+							tooltipTo = boxValueItem;
 						}
 					});
 				}
@@ -49,13 +49,14 @@ class Controller {
 				target.style.left = xCoords + '%';
 			};
 
-			const renderTooltip = (xCoords) => {
+			const renderTooltip = (element, xCoords) => {
 				if (xCoords === 0) {
-					tooltip1.textContent = 0;
+					element.textContent = 0;
 				} else {
-					tooltip1.textContent = this.getCoords(xCoords, this.max);
+					element.textContent = this.getCoords(xCoords, this.max);
 				}
-				tooltip1.style.left = xCoords + "%";
+
+				element.style.left = xCoords + "%";
 			};
 
 			const onMouseMove = (event) => {
@@ -72,7 +73,12 @@ class Controller {
 				}
 
 				moveBall(xCoords);
-				renderTooltip(xCoords);
+
+				if (target.classList.contains("srs__btn-from")) {
+					renderTooltip(tooltipFrom ,xCoords);
+				} else {
+					renderTooltip(tooltipTo ,xCoords);
+				}
 			};
 
 			// remove events on mouseUp
@@ -89,14 +95,15 @@ class Controller {
 	}
 
 	// init
-	init(settings, context) {
+	init(context) {
 		const container = context[0];
 
 		// convert from and to values
-		let fromConverted;
-		// TODO if 0 val = 0 : val = convertedVal;
+		let from;
+		let to;
 
-
+		this.model.from === 0 ? from = 0 : from = this.getPercents(this.model.from, this.model.max);
+		this.model.to === this.model.max ? to = 100 : to = this.getPercents(this.model.to, this.model.max);
 
 		container.classList.add('srs__wrapper');
 
@@ -108,16 +115,16 @@ class Controller {
 		let boxWrapGrid = container.children[2];
 
 		// create boxes
-		this.view.createBox(boxWrapGrid, "srs__box-min", settings.min);
-		this.view.createBox(boxWrapGrid, "srs__box-max", settings.max);
+		this.view.createBox(boxWrapGrid, "srs__box-min", this.model.min);
+		this.view.createBox(boxWrapGrid, "srs__box-max", this.model.max);
 
 		// create btns and value boxes for btns
-		this.view.createBox(boxWrapValues, "srs__box-btn-1", settings.from, settings.from);
-		this.view.createControlBtn(container, "srs__btn--from", settings.from, settings.from);
+		this.view.createBox(boxWrapValues, "srs__box-btn-from", this.model.from, from);
+		this.view.createControllBtn(container, "srs__btn-from", this.model.from, from);
 
-		if (settings.range) {
-			this.view.createBox(boxWrapValues, "srs__box-btn-2", settings.to, settings.to);
-			this.view.createControlBtn(container, "srs__btn--to", settings.to, settings.to);
+		if (this.model.range) {
+			this.view.createBox(boxWrapValues, "srs__box-btn-to", this.model.to, to);
+			this.view.createControllBtn(container, "srs__btn-to", this.model.to, to + "%");
 		}
 	}
 

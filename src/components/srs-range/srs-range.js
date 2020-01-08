@@ -12,7 +12,7 @@ import View from "./View";
 		const settings = $.extend(model, options);
 		const controller = new Controller(settings, view);
 
-		controller.init(settings, _this);
+		controller.init(_this);
 
 		return _this;
 	}

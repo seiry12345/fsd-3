@@ -60,6 +60,14 @@
     border-radius: 50%;
     cursor: pointer;
 
+    &-from {
+      border-color: $primary-color;
+    }
+
+    &-to {
+      border-color: $danger;
+    }
+
     span {
       position: absolute;
     }
