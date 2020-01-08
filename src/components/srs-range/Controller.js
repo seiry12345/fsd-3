@@ -8,6 +8,7 @@ class Controller {
 		this.max = this.model.max;
 		this.min = this.model.min;
 
+		// main function adding actions on Ball mouseDown
 		this.view.btnDrag = (e) => {
 			e.preventDefault();
 			const target = event.target;
@@ -52,18 +53,15 @@ class Controller {
 				if (xCoords === 0) {
 					tooltip1.textContent = 0;
 				} else {
-					const percentPart = Math.floor(this.max * (xCoords / 100));
-					tooltip1.textContent = percentPart;
+					tooltip1.textContent = this.getCoords(xCoords, this.max);
 				}
 				tooltip1.style.left = xCoords + "%";
 			};
 
 			const onMouseMove = (event) => {
-				let value = event.clientX - line.getBoundingClientRect().left;
-				let xCoords = (value / line.offsetWidth) * 100;
-				xCoords = Math.floor(xCoords);
-				let rightEdge = 100 + (target.offsetWidth * 0.5 / lineWidth);
-				rightEdge = Math.floor(rightEdge);
+				const mouseXCoords = event.clientX - line.getBoundingClientRect().left;
+				let xCoords = Math.floor((mouseXCoords / line.offsetWidth) * 100);
+				let rightEdge = Math.floor(100 + (target.offsetWidth * 0.5 / lineWidth));
 
 				if (xCoords < 0) {
 					xCoords = 0;
@@ -77,6 +75,7 @@ class Controller {
 				renderTooltip(xCoords);
 			};
 
+			// remove events on mouseUp
 			const onMouseUp = () => {
 				document.removeEventListener('mouseup', onMouseUp);
 				document.removeEventListener('mousemove', onMouseMove);
@@ -90,8 +89,14 @@ class Controller {
 	}
 
 	// init
-	init(model, context) {
+	init(settings, context) {
 		const container = context[0];
+
+		// convert from and to values
+		let fromConverted;
+		// TODO if 0 val = 0 : val = convertedVal;
+
+
 
 		container.classList.add('srs__wrapper');
 
@@ -99,19 +104,29 @@ class Controller {
 		this.view.createLine(container);
 		this.view.createBoxWrap(container, "srs__box-grid");
 
-		const containerList = Object.values(container.children);
 		let boxWrapValues = container.children[0];
 		let boxWrapGrid = container.children[2];
 
 		// create boxes
-		this.view.createBox(boxWrapGrid, "srs__box-min", this.model.min);
-		this.view.createBox(boxWrapGrid, "srs__box-max", this.model.max);
+		this.view.createBox(boxWrapGrid, "srs__box-min", settings.min);
+		this.view.createBox(boxWrapGrid, "srs__box-max", settings.max);
 
-		// create value boxes
-		this.view.createBox(boxWrapValues, "srs__box-btn-1", this.model.from, this.model.from);
+		// create btns and value boxes for btns
+		this.view.createBox(boxWrapValues, "srs__box-btn-1", settings.from, settings.from);
+		this.view.createControlBtn(container, "srs__btn--from", settings.from, settings.from);
 
-		// create btns
-		this.view.createControlBtn(container, "srs__btn--from", this.model.from, this.model.from);
+		if (settings.range) {
+			this.view.createBox(boxWrapValues, "srs__box-btn-2", settings.to, settings.to);
+			this.view.createControlBtn(container, "srs__btn--to", settings.to, settings.to);
+		}
+	}
+
+	getPercents(numb, max) {
+		return Math.floor(numb / max * 100);
+	}
+
+	getCoords(coords, max) {
+		return Math.floor(max * (coords / 100));
 	}
 }
 

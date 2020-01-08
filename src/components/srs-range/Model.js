@@ -3,7 +3,7 @@ class Model {
     this.min = 0;
     this.max = 1000;
     this.from = 0;
-    this.to = false;
+    this.to = this.max;
     this.step = 100;
     this.range = false;
     this.horizontal = true;

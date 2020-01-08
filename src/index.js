@@ -6,4 +6,7 @@ import './assets/js/common';
 
 import './components/srs-range/srs-range';
 
-$('.range-slider').range({});
+$('.range-slider').range({
+	range: true,
+	to: 400,
+});
