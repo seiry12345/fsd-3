@@ -2,7 +2,8 @@ class Model {
   constructor() {
     this.min = 0;
     this.max = 1000;
-    this.current = 0;
+    this.from = 0;
+    this.to = false;
     this.step = 100;
     this.range = false;
     this.horizontal = true;

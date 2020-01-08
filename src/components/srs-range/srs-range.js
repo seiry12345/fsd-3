@@ -6,7 +6,7 @@ import View from "./View";
 	'use strict';
 
 	$.fn.range = function (options) {
-		let _this = this;
+		const _this = this;
 		const model = new Model();
 		const view = new View();
 		const settings = $.extend(model, options);
