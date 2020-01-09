@@ -1,12 +1,14 @@
+import View from "./View";
+
 class Controller {
-	constructor(model, view) {
-		this.model = model;
-		this.view = view;
-		this.step = this.model.step;
-		this.coords1 = this.model.coords1;
-		this.coords2 = this.model.coords2;
-		this.max = this.model.max;
-		this.min = this.model.min;
+	constructor(settings) {
+		this.settings = settings;
+		this.view = new View();
+		this.step = this.settings.step;
+		this.coordsFrom = this.settings.coordsFrom;
+		this.coordsTo = this.settings.coordsTo;
+		this.max = this.settings.max;
+		this.min = this.settings.min;
 
 		// main function adding actions on Ball mouseDown
 		this.view.btnDrag = (e) => {
@@ -17,10 +19,12 @@ class Controller {
 			const shiftX = event.clientX - target.getBoundingClientRect().left;
 			let line;
 			let lineWidth;
+			let ballFrom;
+			let ballTo;
 			let tooltipFrom;
 			let tooltipTo;
 
-			// iterate parent container
+			// get DOM elements from container
 			srsWrapList.forEach((srsWrapItem) => {
 				// assign line
 				if (srsWrapItem.classList.contains("srs__line")) {
@@ -28,7 +32,16 @@ class Controller {
 					lineWidth = line.offsetWidth;
 				}
 
-				// asign tooltips
+				// assign btns
+				if (srsWrapItem.classList.contains("srs__btn-from")) {
+					ballFrom = srsWrapItem;
+				}
+
+				if (srsWrapItem.classList.contains("srs__btn-to")) {
+					ballTo = srsWrapItem;
+				}
+
+				// assign tooltips
 				if (srsWrapItem.classList.contains("srs__box-values")) {
 					let boxValues = Array.from(srsWrapItem.children);
 
@@ -50,12 +63,13 @@ class Controller {
 			};
 
 			const renderTooltip = (element, xCoords) => {
-				if (xCoords === 0) {
-					element.textContent = 0;
-				} else {
-					element.textContent = this.getCoords(xCoords, this.max);
+				let res = 0;
+
+				if (xCoords !== 0) {
+					res = this.getCoords(xCoords, this.max);
 				}
 
+				element.textContent = res;
 				element.style.left = xCoords + "%";
 			};
 
@@ -70,6 +84,12 @@ class Controller {
 
 				if (xCoords > rightEdge) {
 					xCoords = Math.floor(rightEdge);
+				}
+
+
+
+				if (this.settings.range) {
+					// TODO compare coords btnFrom and btnTo
 				}
 
 				moveBall(xCoords);
@@ -97,13 +117,11 @@ class Controller {
 	// init
 	init(context) {
 		const container = context[0];
-
-		// convert from and to values
 		let from;
 		let to;
 
-		this.model.from === 0 ? from = 0 : from = this.getPercents(this.model.from, this.model.max);
-		this.model.to === this.model.max ? to = 100 : to = this.getPercents(this.model.to, this.model.max);
+		this.settings.from === 0 ? from = 0 : from = this.getPercents(this.settings.from, this.settings.max);
+		this.settings.to === this.settings.max ? to = 100 : to = this.getPercents(this.settings.to, this.settings.max);
 
 		container.classList.add('srs__wrapper');
 
@@ -115,16 +133,17 @@ class Controller {
 		let boxWrapGrid = container.children[2];
 
 		// create boxes
-		this.view.createBox(boxWrapGrid, "srs__box-min", this.model.min);
-		this.view.createBox(boxWrapGrid, "srs__box-max", this.model.max);
+		this.view.createBox(boxWrapGrid, "srs__box-min", this.settings.min);
+		this.view.createBox(boxWrapGrid, "srs__box-max", this.settings.max);
 
-		// create btns and value boxes for btns
-		this.view.createBox(boxWrapValues, "srs__box-btn-from", this.model.from, from);
-		this.view.createControllBtn(container, "srs__btn-from", this.model.from, from);
+		// create btns and tooltips for btns
 
-		if (this.model.range) {
-			this.view.createBox(boxWrapValues, "srs__box-btn-to", this.model.to, to);
-			this.view.createControllBtn(container, "srs__btn-to", this.model.to, to + "%");
+		this.view.createBox(boxWrapValues, "srs__box-btn-from", this.settings.from, from);
+		this.view.createControllBtn(container, "srs__btn-from", this.settings.from, from);
+
+		if (this.settings.range) {
+			this.view.createBox(boxWrapValues, "srs__box-btn-to", this.settings.to, to);
+			this.view.createControllBtn(container, "srs__btn-to", this.settings.to, to + "%");
 		}
 	}
 

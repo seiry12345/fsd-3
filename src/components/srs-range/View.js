@@ -40,7 +40,6 @@ class View {
 	createControllBtn(parent, selector, value, position) {
 		let btn = document.createElement("btn");
 
-		btn.setAttribute("data-xCoords", value);
 		btn.setAttribute("type", "btn");
 		btn.classList.add("srs__btn", selector);
 		btn.style.left = position;

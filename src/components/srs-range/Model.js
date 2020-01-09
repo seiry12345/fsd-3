@@ -8,11 +8,11 @@ class Model {
     this.range = false;
     this.horizontal = true;
     this.vertical = false;
-    this.coords1 = {
+    this.coordsFrom = {
       x: 0,
       y: 0
     };
-    this.coords2 = {
+    this.coordsTo = {
       x: 0,
       y: 0
     };

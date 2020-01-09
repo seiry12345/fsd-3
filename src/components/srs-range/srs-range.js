@@ -10,7 +10,7 @@ import View from "./View";
 		const model = new Model();
 		const view = new View();
 		const settings = $.extend(model, options);
-		const controller = new Controller(settings, view);
+		const controller = new Controller(settings);
 
 		controller.init(_this);
 

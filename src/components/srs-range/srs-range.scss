@@ -30,10 +30,13 @@
   &__box-values {
     .srs__box {
       position: absolute;
+      min-width: 50px;
       padding: 4px 8px;
+      margin-left: -18px;
       background-color: $success;
       color: #fff;
       line-height: 1.2;
+      text-align: center;
       border-radius: 4px;
     }
   }
