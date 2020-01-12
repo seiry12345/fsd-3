@@ -28,7 +28,7 @@ class Controller {
 					const tooltipsList = Array.from(child.children);
 
 					tooltipsList.forEach((tooltip) => {
-						this.tooltips.push(child);
+						this.tooltips.push(tooltip);
 					});
 				}
 			});
@@ -38,30 +38,41 @@ class Controller {
 				let xCoords = Math.round((mouseXCoords / this.line.offsetWidth) * 100);
 				let rightEdge = Math.round(100 + (target.offsetWidth * 0.5 / this.line.offsetWidth));
 
+				// left of container border
 				if (xCoords < 0) {
 					xCoords = 0;
 				}
 
+				// right of container border
 				if (xCoords > rightEdge) {
 					xCoords = Math.round(rightEdge);
 				}
 
-				target.style.left = xCoords + '%';
-
-				// update buttons
+				// update and render FROM elements
 				if (target === this.buttons[0]) {
 					this.buttonFrom.update(target, xCoords);
-					// analog for tooltipFrom
+					this.buttonFrom.renderElement();
+
+					this.tooltipFrom.update(this.tooltips[0], xCoords);
+					this.tooltipFrom.renderTextValue(this.model.max, xCoords);
+					this.tooltipFrom.renderElement();
 				}
 
+				// update and render TO elements
 				if (target === this.buttons[1]) {
 					this.buttonTo.update(target, xCoords);
-					// analog for tooltipTo
+					this.buttonTo.renderElement();
+
+					this.tooltipTo.update(this.tooltips[1], xCoords);
+					this.tooltipTo.renderTextValue(this.model.max, xCoords);
+					this.tooltipTo.renderElement();
 				}
 
 				// buttons collision
 				Buttons.collision(this.buttonFrom, this.buttonTo, target);
-				// renderTooltip();
+
+				// tooltips collision
+				Buttons.collision(this.tooltipFrom, this.tooltipTo, target);
 			};
 
 			// remove events on mouseUp
@@ -122,10 +133,6 @@ class Controller {
 
 	convertToPercents(numb, max) {
 		return Math.floor((numb / max) * 100);
-	}
-
-	convertToCoords(coords, max) {
-		return Math.floor(max * (coords / 100));
 	}
 }
 
