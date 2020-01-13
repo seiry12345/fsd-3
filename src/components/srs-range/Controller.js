@@ -5,7 +5,6 @@ class Controller {
 	constructor(model, view) {
 		this.model = model;
 		this.view = view;
-		this.buttons = [];
 		this.tooltips = [];
 
 		this.view.buttonDrag = (event) => {
@@ -20,10 +19,6 @@ class Controller {
 					this.line = child;
 				}
 
-				if (child.classList.contains('srs__button')) {
-					this.buttons.push(child);
-				}
-
 				if (child.classList.contains('srs__tooltips')) {
 					const tooltipsList = Array.from(child.children);
 
@@ -34,45 +29,40 @@ class Controller {
 			});
 
 			const onMouseMove = (event) => {
+				// tooltips
+				const tooltipFrom = this.tooltips[0];
+				const tooltipTo = this.tooltips[1];
+
+				// calculating coordinates
 				let mouseXCoords = event.clientX - this.line.getBoundingClientRect().left;
 				let xCoords = Math.round((mouseXCoords / this.line.offsetWidth) * 100);
 				let rightEdge = Math.round(100 + (target.offsetWidth * 0.5 / this.line.offsetWidth));
 
-				// left of container border
-				if (xCoords < 0) {
-					xCoords = 0;
+				// set border for coordinates
+				xCoords = Buttons.setBorder(xCoords, rightEdge);
+
+				if (this.model.range) {
+					// render elements with range options
+					this.buttonFrom.rangeButtonRender(target, xCoords, this.buttonFrom, this.buttonTo);
+					this.tooltipFrom.renderTooltip
+					(
+							tooltipFrom,
+							this.buttonFrom.xCoords,
+							this.model.max
+					);
+
+					this.buttonTo.rangeButtonRender(target, xCoords, this.buttonFrom, this.buttonTo);
+					this.tooltipTo.renderTooltip
+					(
+							tooltipTo,
+							this.buttonTo.xCoords,
+							this.model.max
+					);
+				} else {
+					// render single button with tooltip
+					this.buttonFrom.renderButton(target, xCoords);
+					this.tooltipFrom.renderTooltip(tooltipFrom, this.buttonFrom.xCoords, this.model.max);
 				}
-
-				// right of container border
-				if (xCoords > rightEdge) {
-					xCoords = Math.round(rightEdge);
-				}
-
-				// update and render FROM elements
-				if (target === this.buttons[0]) {
-					this.buttonFrom.update(target, xCoords);
-					this.buttonFrom.renderElement();
-
-					this.tooltipFrom.update(this.tooltips[0], xCoords);
-					this.tooltipFrom.renderTextValue(this.model.max, xCoords);
-					this.tooltipFrom.renderElement();
-				}
-
-				// update and render TO elements
-				if (target === this.buttons[1]) {
-					this.buttonTo.update(target, xCoords);
-					this.buttonTo.renderElement();
-
-					this.tooltipTo.update(this.tooltips[1], xCoords);
-					this.tooltipTo.renderTextValue(this.model.max, xCoords);
-					this.tooltipTo.renderElement();
-				}
-
-				// buttons collision
-				Buttons.collision(this.buttonFrom, this.buttonTo, target);
-
-				// tooltips collision
-				Buttons.collision(this.tooltipFrom, this.tooltipTo, target);
 			};
 
 			// remove events on mouseUp

@@ -9,7 +9,6 @@ class View {
 					this.buttonDrag(e);
 				});
 			});
-
 		});
 	}
 
