@@ -8,6 +8,10 @@
     margin: 0 0 17px;
   }
 
+  & > .wrapper {
+    padding: 0 20px;
+  }
+
   &__wrap {
     display: flex;
     flex-wrap: wrap;
@@ -15,6 +19,6 @@
   }
 
   &__item {
-    flex: 0 1 40%;
+    flex: 0 1 48%;
   }
 }

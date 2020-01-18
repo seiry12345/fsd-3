@@ -7,6 +7,7 @@ import './assets/js/common';
 import './components/srs-range/srs-range';
 
 $('.range-slider').range({
-	range: true,
+	range: false,
+	step: 20,
 	to: 400,
 });

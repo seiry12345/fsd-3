@@ -6,7 +6,7 @@ class View {
 			// listen event on each slider button
 			this.buttons.forEach(button => {
 				button.addEventListener('mousedown', e => {
-					this.buttonDrag(e);
+					this.buttonOnDrag(e);
 				});
 			});
 		});
@@ -46,7 +46,7 @@ class View {
 	}
 
 	// events
-	buttonDrag(e) {
+	buttonOnDrag(e) {
 	}
 }
 
