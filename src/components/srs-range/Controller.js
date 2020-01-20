@@ -1,132 +1,156 @@
-import Buttons from "./elements/Buttons";
-import Tooltips from "./elements/Tooltips";
+import Buttons from './elements/Buttons';
+import Tooltips from './elements/Tooltips';
 
 class Controller {
-	constructor(model, view) {
-		this.model = model;
-		this.view = view;
-		this.tooltips = [];
+  constructor(model, view) {
+    this.model = model;
+    this.view = view;
+    this.prevStep = this.model.step;
+    this.prevX = this.model.min;
 
-		this.view.buttonOnDrag = (event) => {
-			this.buttonOnDrag(event)
-		};
-	}
+    this.view.buttonOnDrag = event => {
+      this.buttonOnDrag(event);
+    };
+  }
 
-	buttonOnDrag(event) {
-		event.preventDefault();
+  convertToPercents(numb, max) {
+    return Math.floor((numb / max) * 100);
+  }
 
-		const target = event.target;
-		const parent = target.parentElement;
-		const childrensList = [...parent.children];
+  convertToValue(coordinates, max) {
+    return Math.floor(max * (coordinates / 100));
+  }
 
-		childrensList.forEach((child) => {
-			if (child.classList.contains('srs__line')) {
-				this.line = child;
-			}
+  incrementStep(prevStep, step, max) {
+    if (step === max) {
+      return max;
+    }
 
-			if (child.classList.contains('srs__tooltips')) {
-				const tooltipsList = [...child.children];
+    return (prevStep += step);
+  }
 
-				tooltipsList.forEach((tooltip) => {
-					this.tooltips.push(tooltip);
-				});
-			}
-		});
+  decrementStep(prevStep, step, min) {
+    if (step === min) {
+      return min;
+    }
 
-		const onMouseMove = (event) => {
-			// tooltips
-			const tooltipFrom = this.tooltips[0];
-			const tooltipTo = this.tooltips[1];
+    return (prevStep = prevStep - step);
+  }
 
-			// calculating coordinates
-			let mouseXCoords = event.clientX - this.line.getBoundingClientRect().left;
-			let xCoords = Math.round((mouseXCoords / this.line.offsetWidth) * 100);
-			let rightEdge = Math.round(100 + (target.offsetWidth * 0.5 / this.line.offsetWidth));
-			let stepCount = 0;
+  buttonOnDrag(event) {
+    event.preventDefault();
 
-			// set border for coordinates
-			xCoords = Buttons.setBorder(xCoords, rightEdge);
+    const target = event.target;
+    const parent = target.closest('.srs__wrapper');
+    const childrensList = [...parent.children];
+    const line = childrensList[0];
+    const handlers = childrensList[1];
+    let buttons = [];
+    let tooltips = [];
 
-			if (this.model.range) {
-				// render elements with range options
-				this.buttonFrom.rangeButtonRender(target, xCoords, this.buttonFrom, this.buttonTo);
-				this.tooltipFrom.renderTooltip(
-						tooltipFrom,
-						this.buttonFrom.xCoords,
-						this.model.max
-				);
+    [...handlers.querySelectorAll('.srs__button')].forEach(button => {
+      buttons.push(button);
+    });
 
-				this.buttonTo.rangeButtonRender(target, xCoords, this.buttonFrom, this.buttonTo);
-				this.tooltipTo.renderTooltip(
-						tooltipTo,
-						this.buttonTo.xCoords,
-						this.model.max
-				);
-			} else {
-				// render single button with tooltip
-				this.buttonFrom.renderButton(target, xCoords);
-				this.tooltipFrom.renderTooltip(tooltipFrom, this.buttonFrom.xCoords, this.model.max);
-			}
-		};
+    [...handlers.querySelectorAll('.srs__tooltip')].forEach(tooltip => {
+      tooltips.push(tooltip);
+    });
 
-		// remove events on mouseUp
-		const onMouseUp = () => {
-			document.removeEventListener('mouseup', onMouseUp);
-			document.removeEventListener('mousemove', onMouseMove);
-		};
+    const onMouseMove = event => {
+      // calculating coordinates
+      let cursorX = event.clientX - line.getBoundingClientRect().left;
+      let x = Math.round((cursorX / line.offsetWidth) * 100);
+      let rightEdge = Math.round(
+        100 + (target.offsetWidth * 0.5) / line.offsetWidth
+      );
 
-		document.addEventListener('mousemove', onMouseMove);
-		document.addEventListener('mouseup', onMouseUp);
+      // set X borders
+      x = Buttons.setBorder(x, rightEdge);
 
-		this.line.ondragstart = () => false;
-	};
+      this.buttonFrom.setElement(buttons[0]);
+      this.tooltipFrom.setElement(tooltips[0]);
 
-	init(context) {
-		// TODO for 1 slider at start
-		const container = context[0];
-		let buttonFromCoords;
-		let buttonToCoords;
+      if (this.model.step) {
+        this.tooltipFrom.setValue(x, this.model.max);
 
-		this.model.from === 0
-				? (buttonFromCoords = 0)
-				: (buttonFromCoords = this.convertToPercents(this.model.from, this.model.max));
-		this.model.to === this.model.max
-				? (buttonToCoords = 100)
-				: (buttonToCoords = this.convertToPercents(this.model.to, this.model.max));
+        if (x > this.prevX && this.buttonFrom.value === this.prevStep) {
+          this.buttonFrom.renderButtonOnStep(x, 'x');
+          this.tooltipFrom.renderButtonOnStep(x, 'x');
 
-		container.classList.add('srs__wrapper');
+          this.prevX = x;
+          this.prevStep = this.incrementStep(
+            this.prevStep,
+            this.model.step,
+            this.model.max
+          );
+        } else if (
+          x < this.prevX &&
+          this.buttonFrom.value === this.prevStep - this.model.step * 2
+        ) {
+          this.buttonFrom.updatePosition(x, 'x');
+          this.tooltipFrom.updatePosition(x, 'x');
 
-		this.view.createBoxWrap(container, 'srs__tooltips');
-		this.view.createLine(container);
-		this.view.createBoxWrap(container, 'srs__grid');
+          this.prevX = x;
+          this.prevStep = this.decrementStep(
+            this.prevStep,
+            this.model.step,
+            this.model.min
+          );
+        }
+      } else if (this.model.range) {
+      } else {
+        this.buttonFrom.updatePosition(x, 'x');
+        this.tooltipFrom.setValue(x, this.model.max);
+        this.tooltipFrom.updatePosition(x, 'x');
+      }
+    };
 
-		const tooltips = container.children[0];
-		const values = container.children[2];
+    // remove events on mouseUp
+    const onMouseUp = () => {
+      document.removeEventListener('mouseup', onMouseUp);
+      document.removeEventListener('mousemove', onMouseMove);
+    };
 
-		// create values
-		this.view.createBox(values, 'srs__min', this.model.min);
-		this.view.createBox(values, 'srs__max', this.model.max);
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
 
-		// create buttonFrom
-		this.view.createButton(container, 'srs__button--from', buttonFromCoords);
-		this.buttonFrom = new Buttons(null, buttonFromCoords);
-		// create tooltipFrom
-		this.view.createBox(tooltips, 'srs__tooltip--from', this.model.from, buttonFromCoords);
-		this.tooltipFrom = new Tooltips(null, buttonFromCoords);
+    line.ondragstart = () => false;
+  }
 
-		if (this.model.range) {
-			// create buttonTo
-			this.view.createButton(container, 'srs__button--to', buttonToCoords + '%');
-			this.buttonTo = new Buttons(null, buttonToCoords);
-			// create tooltipTo
-			this.view.createBox(tooltips, 'srs__tooltip--to', this.model.to, buttonToCoords);
-			this.tooltipTo = new Tooltips(null, buttonToCoords);
-		}
-	}
+  init(context) {
+    // TODO for 1 slider at start
+    const container = context[0];
+    let buttonFromCoords;
+    let buttonToCoords;
 
-	convertToPercents(numb, max) {
-		return Math.floor((numb / max) * 100);
-	}
+    this.model.from === 0
+      ? (buttonFromCoords = 0)
+      : (buttonFromCoords = this.convertToPercents(
+          this.model.from,
+          this.model.max
+        ));
+    this.model.to === this.model.max
+      ? (buttonToCoords = 100)
+      : (buttonToCoords = this.convertToPercents(
+          this.model.to,
+          this.model.max
+        ));
+
+    container.classList.add('srs__wrapper');
+
+    this.view.createTemplate(container, buttonFromCoords, this.model.from);
+    this.view.createBoxWrap(container, 'srs__grid');
+
+    // create From
+    this.buttonFrom = new Buttons(null, buttonFromCoords);
+    this.tooltipFrom = new Tooltips(null, buttonFromCoords);
+
+    if (this.model.range) {
+      // create To
+      this.buttonTo = new Buttons(null, buttonToCoords);
+      this.tooltipTo = new Tooltips(null, buttonToCoords);
+    }
+  }
 }
 
 export default Controller;

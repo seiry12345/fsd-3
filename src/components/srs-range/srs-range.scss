@@ -27,19 +27,17 @@
     margin-top: auto;
   }
 
-  &__tooltips {
-    .srs__box {
-      position: absolute;
-      min-width: 40px;
-      padding: 4px 8px;
-      margin-left: -14px;
-      background-color: $success;
-      color: #fff;
-      font-size: 12px;
-      line-height: 1.2;
-      text-align: center;
-      border-radius: 4px;
-    }
+  &__tooltip {
+    position: absolute;
+    min-width: 40px;
+    padding: 4px 8px;
+    margin-left: -14px;
+    background-color: $success;
+    color: #fff;
+    font-size: 12px;
+    line-height: 1.2;
+    text-align: center;
+    border-radius: 4px;
   }
 
   &__min {

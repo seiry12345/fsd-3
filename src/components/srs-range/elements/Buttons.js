@@ -1,70 +1,56 @@
 class Buttons {
-	constructor(element, xCoords) {
-		this.element = element;
-		this.xCoords = xCoords;
-	}
+  constructor(element, x) {
+    this.element = element;
+    this.x = x;
+    this.y = 0;
+    this.curStep = x;
+  }
 
-	static setBorder(coordinates, rightEdge) {
-		if (coordinates < 0) {
-			coordinates = 0;
-		}
+  static setBorder(coordinates, rightEdge) {
+    if (coordinates < 0) {
+      coordinates = 0;
+    }
 
-		if (coordinates > rightEdge) {
-			coordinates = Math.round(rightEdge);
-		}
+    if (coordinates > rightEdge) {
+      coordinates = Math.round(rightEdge);
+    }
 
-		return coordinates;
-	}
+    return coordinates;
+  }
 
-	setElement(element) {
-		return this.element = element;
-	}
+  // init methods onMouseMove
+  setCoordinate(coordinate, axis = 'x') {
+    if (axis === 'x') {
+      this.x = coordinate;
+    } else {
+      this.y = coordinate;
+    }
+  }
 
-	setCoordinates(xCoords) {
-		return this.xCoords = xCoords;
-	}
+  setElement(element) {
+    return (this.element = element);
+  }
 
-	renderElement() {
-		this.element.style.left = this.xCoords + '%';
-	}
+  setValue(coordinates, max) {
+    return (this.value = this.convertToCoords(coordinates, max));
+  }
 
-	renderButton(element, xCoords) {
-		this.setCoordinates(xCoords);
-		this.setElement(element);
-		this.renderElement();
-	}
+  renderButton(axis) {
+    if (axis === 'x') {
+      this.element.style.left = this.x + '%';
+    } else {
+      this.element.style.bottom = this.y + '%';
+    }
+  }
 
-	rangeButtonRender(target, coordinate, buttonFrom, buttonTo) {
-		if (target.classList.contains('srs__button--from')) {
-			buttonFrom.setElement(target);
-			buttonFrom.xCoords = coordinate;
+  updatePosition(x, axis) {
+    this.setCoordinate(x);
+    this.renderButton(axis);
+  }
 
-			if (
-					buttonFrom.xCoords > buttonTo.xCoords &&
-					coordinate > buttonTo.xCoords
-			) {
-				buttonFrom.xCoords = buttonTo.xCoords;
-			}
-
-			buttonFrom.renderElement();
-		} else {
-			buttonTo.setElement(target);
-			buttonTo.xCoords = coordinate;
-
-			if (
-					buttonFrom.xCoords > buttonTo.xCoords &&
-					coordinate < buttonFrom.xCoords
-			) {
-				buttonTo.xCoords = buttonFrom.xCoords;
-			}
-
-			buttonTo.renderElement();
-		}
-	}
-
-	convertToCoords(coords, max) {
-		return Math.floor(max * (coords / 100));
-	}
+  convertToCoords(coordinates, max) {
+    return Math.floor(max * (coordinates / 100));
+  }
 }
 
 export default Buttons;
